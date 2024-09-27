@@ -1,13 +1,13 @@
 use nom;
 
-pub fn n<N: std::str::FromStr>(input: &str) -> nom::IResult<&str, N> {
+pub fn n<N: core::str::FromStr>(input: &str) -> nom::IResult<&str, N> {
     nom::combinator::map_res(nom::character::complete::digit1, N::from_str)(input)
 }
 
 #[macro_export]
 macro_rules! impl_from_str_from_nom_parser {
     ($fn:ident, $obj:ident) => {
-        impl std::str::FromStr for $obj {
+        impl core::str::FromStr for $obj {
             type Err = nom::error::Error<String>;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
