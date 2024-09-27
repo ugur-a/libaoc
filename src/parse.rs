@@ -1,5 +1,3 @@
-use nom;
-
 pub fn n<N: core::str::FromStr>(input: &str) -> nom::IResult<&str, N> {
     nom::combinator::map_res(nom::character::complete::digit1, N::from_str)(input)
 }
