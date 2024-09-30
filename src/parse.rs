@@ -4,7 +4,7 @@ pub fn n<N: core::str::FromStr>(input: &str) -> nom::IResult<&str, N> {
 
 #[macro_export]
 macro_rules! impl_from_str_from_nom_parser {
-    ($fn:ident, $obj:ident) => {
+    ($fn:ident, $obj:ty) => {
         impl core::str::FromStr for $obj {
             type Err = nom::error::Error<String>;
 
