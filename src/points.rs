@@ -78,17 +78,19 @@ pub trait ManhattanDistance {
     fn manhattan_distance(self, other: Self) -> Self::Output;
 }
 
-impl ManhattanDistance for Point2D<i32> {
-    type Output = u32;
-    fn manhattan_distance(self, other: Self) -> Self::Output {
-        self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
+macro_rules! impl_manhattan_distance {
+    ($($ty:ty),+) => {
+        $(
+        impl ManhattanDistance for Point2D<$ty> {
+            type Output = $ty;
+            fn manhattan_distance(self, other: Self) -> Self::Output {
+                self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
+            }
+        })+
     }
 }
 
-impl ManhattanDistance for Point2D<usize> {
-    type Output = usize;
-    fn manhattan_distance(self, other: Self) -> Self::Output {
-        self.0.abs_diff(other.0) + self.1.abs_diff(other.1)
+impl_manhattan_distance!(u32, usize);
     }
 }
 
