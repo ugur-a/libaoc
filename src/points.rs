@@ -53,26 +53,6 @@ impl<T, U, V> From<(T, U, V)> for Point3D<T, U, V> {
     }
 }
 
-impl<T, U, V> Point3D<T, U, V>
-where
-    T: Add<Output = T> + Sub<Output = T> + From<i8> + Copy,
-    U: Add<Output = U> + Sub<Output = U> + From<i8> + Copy,
-    V: Add<Output = V> + Sub<Output = V> + From<i8> + Copy,
-{
-    pub fn neighbours(&self) -> [Self; 6] {
-        let &Self(x, y, z) = self;
-        [
-            (x + 1.into(), y, z),
-            (x, y + 1.into(), z),
-            (x, y, z + 1.into()),
-            (x - 1.into(), y, z),
-            (x, y - 1.into(), z),
-            (x, y, z - 1.into()),
-        ]
-        .map(Self::from)
-    }
-}
-
 pub trait ManhattanDistance {
     type Output;
     fn manhattan_distance(self, other: Self) -> Self::Output;
@@ -91,8 +71,112 @@ macro_rules! impl_manhattan_distance {
 }
 
 impl_manhattan_distance!(u32, usize);
+
+pub trait Neighbours {
+    fn neighbours_direct_bounded(
+        self,
+        lower_bound: Self,
+        upper_bound: Self,
+    ) -> impl Iterator<Item = Self>;
+
+    fn neighbours_diagonal_bounded(
+        self,
+        lower_bound: Self,
+        upper_bound: Self,
+    ) -> impl Iterator<Item = Self>;
+
+    fn neighbours_direct_upper_bounded(self, upper_bound: Self) -> impl Iterator<Item = Self>
+    where
+        Self: Default,
+    {
+        self.neighbours_direct_bounded(Default::default(), upper_bound)
+    }
+
+    fn neighbours_diagonal_upper_bounded(self, upper_bound: Self) -> impl Iterator<Item = Self>
+    where
+        Self: Default,
+    {
+        self.neighbours_diagonal_bounded(Default::default(), upper_bound)
     }
 }
+
+macro_rules! impl_neighbours_2d_unsigned {
+    ($($ty:ty),+) => {
+        $(impl Neighbours for Point2D<$ty> {
+            fn neighbours_direct_bounded(self, Self(x_min, y_min): Self, Self(x_max, y_max): Self) -> impl Iterator<Item = Self> {
+                let Self(x, y) = self;
+
+                core::iter::empty()
+                    .chain((x > x_min).then(|| Self(x - 1, y)))
+                    .chain((y > y_min).then(|| Self(x, y - 1)))
+                    .chain((x < x_max - 1).then(|| Self(x + 1, y)))
+                    .chain((y < y_max - 1).then(|| Self(x, y + 1)))
+            }
+
+            fn neighbours_diagonal_bounded(self, min @ Self(x_min, y_min): Self, max @ Self(x_max, y_max): Self) -> impl Iterator<Item = Self> {
+                let Self(x, y) = self;
+
+                self.neighbours_direct_bounded(min, max)
+                    .chain((x > x_min && y > y_min).then(|| Self(x - 1, y - 1)))
+                    .chain((x > x_min && y < y_max - 1).then(|| Self(x - 1, y + 1)))
+                    .chain((x < x_max - 1 && y > y_min).then(|| Self(x + 1, y - 1)))
+                    .chain((x < x_max - 1 && y < y_max - 1).then(|| Self(x + 1, y + 1)))
+            }
+        })+
+    }
+}
+
+impl_neighbours_2d_unsigned!(u32, usize);
+
+macro_rules! impl_neighbours_3d_unsigned {
+    ($($ty:ty),+) => {
+        $(impl Neighbours for Point3D<$ty> {
+            fn neighbours_direct_bounded(self, Self(x_min, y_min, z_min): Self, Self(x_max, y_max, z_max): Self) -> impl Iterator<Item = Self> {
+                let Self(x, y, z) = self;
+
+                core::iter::empty()
+                    .chain((x > x_min).then(|| Self(x - 1, y, z)))
+                    .chain((y > y_min).then(|| Self(x, y - 1, z)))
+                    .chain((z > z_min).then(|| Self(x, y, z - 1)))
+                    .chain((x < x_max - 1).then(|| Self(x + 1, y, z)))
+                    .chain((y < y_max - 1).then(|| Self(x, y + 1, z)))
+                    .chain((z < z_max - 1).then(|| Self(x, y, z + 1)))
+            }
+
+            fn neighbours_diagonal_bounded(self, min @ Self(x_min, y_min, z_min): Self, max @ Self(x_max, y_max, z_max): Self) -> impl Iterator<Item = Self> {
+                let Self(x, y, z) = self;
+
+                self.neighbours_direct_bounded(min, max)
+                    .chain((y > y_min && z > z_min).then(|| Self(x, y - 1, z - 1)))
+                    .chain((y > y_min && z < z_max - 1).then(|| Self(x, y - 1, z + 1)))
+                    .chain((y < y_max - 1 && z > z_min).then(|| Self(x, y + 1, z - 1)))
+                    .chain((y < y_max - 1 && z < z_max - 1).then(|| Self(x, y + 1, z + 1)))
+
+                    .chain((x > x_min && z > z_min).then(|| Self(x - 1, y, z - 1)))
+                    .chain((x > x_min && z < z_max - 1).then(|| Self(x - 1, y, z + 1)))
+                    .chain((x < x_max - 1 && z > z_min).then(|| Self(x + 1, y, z - 1)))
+                    .chain((x < x_max - 1 && z < z_max - 1).then(|| Self(x + 1, y, z + 1)))
+
+                    .chain((x > x_min && y > y_min).then(|| Self(x - 1, y - 1, z)))
+                    .chain((x > x_min && y < y_max - 1).then(|| Self(x - 1, y + 1, z)))
+                    .chain((x < x_max - 1 && y > y_min).then(|| Self(x + 1, y - 1, z)))
+                    .chain((x < x_max - 1 && y < y_max - 1).then(|| Self(x + 1, y + 1, z)))
+
+                    .chain((x > x_min && y > y_min && z > z_min).then(|| Self(x - 1, y - 1, z - 1)))
+                    .chain((x > x_min && y > y_min && z < z_max - 1).then(|| Self(x - 1, y - 1, z + 1)))
+                    .chain((x > x_min && y < y_max - 1 && z > z_min).then(|| Self(x - 1, y + 1, z - 1)))
+                    .chain((x > x_min && y < y_max - 1 && z < z_max - 1).then(|| Self(x - 1, y + 1, z + 1)))
+
+                    .chain((x < x_max - 1 && y > y_min && z > z_min).then(|| Self(x + 1, y - 1, z - 1)))
+                    .chain((x < x_max - 1 && y > y_min && z < z_max - 1).then(|| Self(x + 1, y - 1, z + 1)))
+                    .chain((x < x_max - 1 && y < y_max - 1 && z > z_min).then(|| Self(x + 1, y + 1, z - 1)))
+                    .chain((x < x_max - 1 && y < y_max - 1 && z < z_max - 1).then(|| Self(x + 1, y + 1, z + 1)))
+            }
+        })+
+    }
+}
+
+impl_neighbours_3d_unsigned!(u32);
 
 impl<T: Copy, U: Copy, V: Copy> Point3D<T, U, V> {
     pub fn new(x: T, y: U, z: V) -> Self {
