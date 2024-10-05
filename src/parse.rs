@@ -6,17 +6,12 @@ pub fn n<N: core::str::FromStr>(input: &str) -> nom::IResult<&str, N> {
 macro_rules! impl_from_str_from_nom_parser {
     ($fn:expr, $obj:ty) => {
         impl core::str::FromStr for $obj {
-            type Err = nom::error::Error<String>;
+            type Err = anyhow::Error;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
-                use nom::Finish;
-                match $fn(s).finish() {
-                    Ok((_remaining, object)) => Ok(object),
-                    Err(nom::error::Error { input, code }) => Err(Self::Err {
-                        input: input.to_string(),
-                        code,
-                    }),
-                }
+                let (remaining, object) = $fn(s).map_err(|e| anyhow::anyhow!("{e}"))?;
+                anyhow::ensure!(remaining.is_empty());
+                Ok(object)
             }
         }
     };
@@ -29,17 +24,12 @@ macro_rules! impl_from_str_for_obj_with_lifetimes_from_nom_parser {
         where
             'input: 'output,
         {
-            type Error = nom::error::Error<String>;
+            type Error = anyhow::Error;
 
             fn try_from(value: &'input str) -> Result<Self, Self::Error> {
-                use nom::Finish;
-                match $fn(value).finish() {
-                    Ok((_remaining, object)) => Ok(object),
-                    Err(nom::error::Error { input, code }) => Err(Self::Error {
-                        input: input.to_string(),
-                        code,
-                    }),
-                }
+                let (remaining, object) = $fn(value).map_err(|e| anyhow::anyhow!("{e}"))?;
+                anyhow::ensure!(remaining.is_empty());
+                Ok(object)
             }
         }
     };
