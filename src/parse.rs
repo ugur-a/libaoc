@@ -3,6 +3,15 @@ pub fn n<N: core::str::FromStr>(input: &str) -> nom::IResult<&str, N> {
 }
 
 #[macro_export]
+/// ```
+/// fn parse(i: &str) -> nom::IResult<&str, Foo> {
+///     Ok((i, Foo))
+/// }
+///
+/// struct Foo;
+///
+/// libaoc::impl_from_str_from_nom_parser!(parse, Foo);
+/// ```
 macro_rules! impl_from_str_from_nom_parser {
     ($fn:expr, $obj:ty) => {
         impl core::str::FromStr for $obj {
@@ -18,6 +27,22 @@ macro_rules! impl_from_str_from_nom_parser {
 }
 
 #[macro_export]
+/// ```
+/// fn parse(i: &str) -> nom::IResult<&str, Foo> {
+///     Ok((i, Foo::new(i)))
+/// }
+///
+/// #[allow(dead_code)]
+/// struct Foo<'a>(&'a str);
+///
+/// impl<'a> Foo<'a> {
+///     fn new(i: &'a str) -> Self {
+///         Self(i)
+///     }
+/// }
+///
+/// libaoc::impl_from_str_for_obj_with_lifetimes_from_nom_parser!(parse, Foo);
+/// ```
 macro_rules! impl_from_str_for_obj_with_lifetimes_from_nom_parser {
     ($fn:ident, $obj:ident) => {
         impl<'input, 'output> core::convert::TryFrom<&'input str> for $obj<'output>
