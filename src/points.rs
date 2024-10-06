@@ -58,7 +58,7 @@ pub trait ManhattanDistance {
     fn manhattan_distance(self, other: Self) -> Self::Output;
 }
 
-macro_rules! impl_manhattan_distance {
+macro_rules! impl_manhattan_distance_2d {
     ($($ty:ty),+) => {
         $(
         impl ManhattanDistance for Point2D<$ty> {
@@ -70,7 +70,7 @@ macro_rules! impl_manhattan_distance {
     }
 }
 
-impl_manhattan_distance!(u32, usize);
+impl_manhattan_distance_2d!(u32, usize);
 
 pub trait Neighbours {
     fn neighbours_direct_bounded(
