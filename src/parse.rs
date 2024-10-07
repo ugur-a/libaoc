@@ -19,7 +19,7 @@ macro_rules! impl_from_str_from_nom_parser {
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 let (remaining, object) = $fn(s).map_err(|e| anyhow::anyhow!("{e}"))?;
-                anyhow::ensure!(remaining.is_empty());
+                anyhow::ensure!(remaining.is_empty() || remaining == "\n");
                 Ok(object)
             }
         }
@@ -53,7 +53,7 @@ macro_rules! impl_from_str_for_obj_with_lifetimes_from_nom_parser {
 
             fn try_from(value: &'input str) -> Result<Self, Self::Error> {
                 let (remaining, object) = $fn(value).map_err(|e| anyhow::anyhow!("{e}"))?;
-                anyhow::ensure!(remaining.is_empty());
+                anyhow::ensure!(remaining.is_empty() || remaining == "\n");
                 Ok(object)
             }
         }
