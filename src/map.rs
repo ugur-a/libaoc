@@ -41,11 +41,11 @@ where
     }
 }
 
-impl<T> Index<Point2D<T>> for Map2D<Point2D<T>>
+impl<T, U> Index<Point2D<T>> for Map2D<U>
 where
     T: Into<usize>,
 {
-    type Output = Point2D<T>;
+    type Output = U;
 
     fn index(&self, index: Point2D<T>) -> &Self::Output {
         let Point2D(x, y) = index;
@@ -53,7 +53,7 @@ where
     }
 }
 
-impl<T> IndexMut<Point2D<T>> for Map2D<Point2D<T>>
+impl<T, U> IndexMut<Point2D<T>> for Map2D<U>
 where
     T: Into<usize>,
 {
