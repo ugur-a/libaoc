@@ -1,6 +1,11 @@
-use core::str::FromStr;
+use core::{
+    ops::{Index, IndexMut},
+    str::FromStr,
+};
 
 use itertools::Itertools;
+
+use crate::points::Point2D;
 
 pub struct Map2D<T>(Vec<Vec<T>>);
 
@@ -33,5 +38,27 @@ where
             .try_collect()?;
 
         Ok(Self(map))
+    }
+}
+
+impl<T> Index<Point2D<T>> for Map2D<Point2D<T>>
+where
+    T: Into<usize>,
+{
+    type Output = Point2D<T>;
+
+    fn index(&self, index: Point2D<T>) -> &Self::Output {
+        let Point2D(x, y) = index;
+        &self.0[y.into()][x.into()]
+    }
+}
+
+impl<T> IndexMut<Point2D<T>> for Map2D<Point2D<T>>
+where
+    T: Into<usize>,
+{
+    fn index_mut(&mut self, index: Point2D<T>) -> &mut Self::Output {
+        let Point2D(x, y) = index;
+        &mut self.0[y.into()][x.into()]
     }
 }
