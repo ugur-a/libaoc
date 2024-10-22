@@ -10,6 +10,9 @@ use crate::points::Point2D;
 pub struct Map2D<T>(Vec<Vec<T>>);
 
 impl<T> Map2D<T> {
+    pub fn new(v: Vec<Vec<T>>) -> Self {
+        Self(v)
+    }
     pub fn height(&self) -> usize {
         self.0.len()
     }
@@ -41,6 +44,18 @@ where
     }
 }
 
+/// ```rust
+/// # use libaoc::{map::Map2D, points::Point2D};
+/// let v = vec![
+///           vec![1, 2, 3],
+///           vec![4, 5, 6],
+///           vec![7, 8, 9]
+///         ];
+/// let m = Map2D::new(v);
+/// let pos: Point2D<usize> = Point2D(1, 2);
+///
+/// assert_eq!(m[pos], 8);
+/// ```
 impl<T, U> Index<Point2D<T>> for Map2D<U>
 where
     T: Into<usize>,
