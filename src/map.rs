@@ -28,6 +28,22 @@ impl<T> Map2D<T> {
     }
 }
 
+/// ``` rust
+/// use libaoc::map::Map2D;
+/// use core::str::FromStr;
+///
+/// struct Foo;
+///
+/// impl TryFrom<char> for Foo {
+///     type Error = ();
+///     fn try_from(_: char) -> Result<Self, Self::Error> {
+///         Ok(Self)
+///     }
+/// }
+///
+/// let v = "aaa\nbbb\nccc";
+/// let m: Map2D<Foo> = Map2D::from_str(v).unwrap();
+/// ```
 impl<T> FromStr for Map2D<T>
 where
     T: TryFrom<char>,
