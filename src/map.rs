@@ -30,9 +30,9 @@ impl<T> Map2D<T> {
 
 impl<T> FromStr for Map2D<T>
 where
-    T: TryFrom<char, Error = anyhow::Error>,
+    T: TryFrom<char>,
 {
-    type Err = anyhow::Error;
+    type Err = <T as TryFrom<char>>::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let map = s
