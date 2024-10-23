@@ -27,7 +27,7 @@ impl<T> Map2D<T> {
         &mut self.0
     }
 
-    pub fn try_go(self, point: Point2D<usize>, direction: Direction4) -> Option<Point2D<usize>> {
+    pub fn try_go(&self, point: Point2D<usize>, direction: Direction4) -> Option<Point2D<usize>> {
         let Point2D(x, y) = point;
         match direction {
             Direction4::Left => (x > 0).then(|| Point2D(x - 1, y)),
