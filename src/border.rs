@@ -68,6 +68,13 @@ where
     }
 }
 
+impl<T> From<Map2D<T>> for Border2D<usize> {
+    fn from(map: Map2D<T>) -> Self {
+        let lower_right = Point2D(map.width() - 1, map.height() - 1);
+        Self::from_one_point(lower_right)
+    }
+}
+
 pub fn min_enclosing_rectangle<'a, I, T, U>(positions1: I, positions2: I) -> Border2D<T, U>
 where
     T: Copy + PartialOrd + 'a,
