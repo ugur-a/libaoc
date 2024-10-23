@@ -1,6 +1,5 @@
 use crate::points::{ManhattanDistance, Neighbours};
 use core::{fmt::Debug, ops::Add};
-use itertools::Itertools;
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Default)]
 pub struct Point2D<T, U = T>(pub T, pub U);
@@ -87,27 +86,5 @@ macro_rules! impl_neighbours_2d_unsigned {
 
 impl_neighbours_2d_unsigned!(u32, usize);
 
-#[derive(Debug)]
-pub struct Border2D<T, U = T> {
-    pub left: T,
-    pub right: T,
-    pub top: U,
-    pub down: U,
-}
-
-pub fn min_enclosing_rectangle<'a, I, T, U>(positions1: I, positions2: I) -> Border2D<T, U>
-where
-    T: Copy + PartialOrd + 'a,
-    U: Copy + PartialOrd + 'a,
-    I: Iterator<Item = &'a Point2D<T, U>>,
-{
-    let (left, right) = positions1.map(Point2D::x).minmax().into_option().unwrap();
-    let (top, down) = positions2.map(Point2D::y).minmax().into_option().unwrap();
-
-    Border2D {
-        left,
-        right,
-        top,
-        down,
-    }
-}
+#[deprecated(since = "0.5.0", note = "moved to `crate::border`")]
+pub use crate::border::{min_enclosing_rectangle, Border2D};
