@@ -17,11 +17,13 @@ impl<T: Debug, U: Debug> Debug for Point2D<T, U> {
     }
 }
 
-impl<T: Copy, U: Copy> Point2D<T, U> {
+impl<T, U> Point2D<T, U> {
     pub fn new(x: T, y: U) -> Self {
         Self(x, y)
     }
+}
 
+impl<T: Copy, U: Copy> Point2D<T, U> {
     pub fn x(&self) -> T {
         self.0
     }
